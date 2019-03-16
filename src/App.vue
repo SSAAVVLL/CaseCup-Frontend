@@ -28,12 +28,15 @@
       <!--<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>-->
       <v-toolbar-title>SaleHero</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat>День 1 | Час 1</v-btn>
+      <v-toolbar-items>
+        <v-btn v-if="jwtObject" flat>Игрок {{jwtObject.user}} | Очки {{jwtObject.score}} | День {{jwtObject.day}}, Час {{jwtObject.step}}</v-btn>
+      </v-toolbar-items>
+      <v-toolbar-items>
+        <v-btn color="blue" @click="opedScoreBoard()">Открыть таблицу достижений</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content class="fill-height">
-      <GameLayout/>
+      <GameLayout @updated-jwt="updateToken($event)" ref="game"/>
     </v-content>
     <!-- <v-footer color="indigo" app>
       <span class="white--text">&copy; 2017</span>
@@ -46,10 +49,19 @@
   export default {
     name: 'App',
     data: () => ({
-      drawer: false
+      drawer: false,
+      jwtObject: null,
     }),
     components: {
       GameLayout
+    },
+    methods: {
+        opedScoreBoard() {
+            this.$refs.game.openScoreBoard()
+        },
+        updateToken(token) {
+            this.jwtObject = token
+        }
     }
   }
 </script>
