@@ -1,5 +1,5 @@
 <template>
-  <v-app id="inspire">
+  <v-app class="cyan darken-3" id="inspire">
     <!--<v-navigation-drawer-->
       <!--v-model="drawer"-->
       <!--fixed-->
@@ -24,17 +24,17 @@
         <!--</v-list-tile>-->
       <!--</v-list>-->
     <!--</v-navigation-drawer>-->
-    <v-toolbar color="indigo" dark fixed app>
+    <!--<v-toolbar color="blue" dark fixed app>-->
       <!--<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>-->
-      <v-toolbar-title>SaleHero</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items>
-        <v-btn v-if="jwtObject" flat>Игрок {{jwtObject.user}} | Очки {{jwtObject.score}} | День {{jwtObject.day}}, Час {{jwtObject.step}}</v-btn>
-      </v-toolbar-items>
-      <v-toolbar-items>
-        <v-btn color="blue" @click="opedScoreBoard()">Открыть таблицу достижений</v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
+      <!--<v-toolbar-title>SaleHero</v-toolbar-title>-->
+      <!--<v-spacer></v-spacer>-->
+      <!--<v-toolbar-items>-->
+        <!--<v-btn v-if="jwtObject" flat>Игрок {{jwtObject.user}} | Очки {{jwtObject.score}} | День {{jwtObject.day}}, Час {{jwtObject.step}}</v-btn>-->
+      <!--</v-toolbar-items>-->
+      <!--<v-toolbar-items>-->
+        <!--<v-btn color="blue" @click="opedScoreBoard()">Открыть таблицу достижений</v-btn>-->
+      <!--</v-toolbar-items>-->
+    <!--</v-toolbar>-->
     <v-content class="fill-height">
       <GameLayout @updated-jwt="updateToken($event)" ref="game"/>
     </v-content>
@@ -71,7 +71,7 @@
       border-radius: 100%; 
   }
   .h-50 {
-    height: 50%;
+    height: calc(50% - 40px);
   }
   html, body, #inspire, .h-100 {
       height:100%;
@@ -93,6 +93,9 @@
   }
   .align-items-center {
     align-items: center !important;
+  }
+  .text-center {
+    text-align:center;
   }
   .justify-flex-end {
     justify-content: flex-end !important;

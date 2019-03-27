@@ -9,6 +9,7 @@ import './assets/css/vue2-perfect-scrollbar-theme.css'
 import jwtDecode from 'jwt-decode'
 import lodash from 'lodash'
 
+
 Vue.prototype.$axios = axios
 Vue.prototype.$jwtDecode= jwtDecode
 Vue.prototype.$lodash = lodash
