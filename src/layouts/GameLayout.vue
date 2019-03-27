@@ -135,6 +135,7 @@
                             </v-card-title>
 
                             <v-card-text class="headline font-weight-bold">
+                                <span class="stats">Вы занимаете {{scores ? scores.player : ''}}-е место из {{scores ? scores.from : ''}}-х</span>
                                 <ve-line
                                         :data="chartData"
                                         class="custom-class"
@@ -236,7 +237,7 @@
             <v-flex class="d-flex flex-column flex-shrink-0" xs4>
                 <v-toolbar color="amber " class="flex-grow-0 flex-shrink-0">
                     <v-icon>add_shopping_cart</v-icon>
-                    <v-toolbar-title>Корзина</v-toolbar-title>
+                    <v-toolbar-title>Корзина (не более 5-ти товаров)</v-toolbar-title>
                     <v-spacer></v-spacer>
 
                 </v-toolbar>
@@ -247,7 +248,7 @@
                     <perfect-scrollbar v-if="cart.length !== 0" class="flex-grow-1 mh-0">
                         <v-list>
                             <v-list-tile
-                                    v-for="item in cart" :key="item._id"
+                                    v-for="item in cart"
                             >
                                 <v-list-tile-content>
                                     <v-list-tile-title>{{item.name}}</v-list-tile-title>
@@ -276,6 +277,23 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" flat @click="closeStartModal()">Подтвердить</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="startGuide" persistent max-width="900">
+            <v-card>
+                <v-card-title class="headline">Правила игры</v-card-title>
+                <v-card-text>
+                    <p class="guide"><b>Попробуйте на себе роль менеджера по продажам в продуктовом магазине.</b> 
+                    Вам предстоит <b>пять</b> рабочих дней по <b>восемь</b> часов. Каждый час к вам будет приходить новый покупатель. Ваша <b>цель</b> – продать дополнительных товаров на наибольшую сумму, обозначающую ваши очки. 
+                    </p>
+                    <p class="guide">Товар, приобретаемый покупателем, отображается по центру экрана, слева находятся категории, немного ниже товары. Чтобы увидеть список продуктов, сначала необходимо выбрать категорию. Как по категориям, так и по товарам есть возможность поиска.</p>
+                    <p class="guide">Вы можете предложить покупателю дополнительно не более пяти товаров. Как только вы определились с окончательным вариантом корзины вы нажимаете кнопку завершить ход, и игра произведет расчет того какие товары были куплены покупателем и отобразит соответствующее количество очков, полученное за продажу товаров.</p>
+                    <p class="guide"><i>Ваши противники – рандомный генератор, мат модель и нейронная сеть, желаем удачи.</i></p>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" flat @click="closeGuide()">Закрыть</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -349,7 +367,7 @@
                                    :src="require('../assets/images/medalBronze.png')"/>
                         </v-card>
                     </div>
-                    <div class=" congrats text-center infoResult mt-4 py-3">Поздравляем, по итогам рабочей недели вы заняли <b>{{resOfGame}}-ое место</b>
+                    <div class=" congrats text-center infoResult mt-4 py-3">Поздравляем, по итогам рабочей недели вы заняли <b>{{resOfGame}}-ое место из {{scores ? scores.from : ''}}-x</b>
                     </div>
                 </v-card-text>
                 <v-card-actions>
@@ -373,6 +391,7 @@
             products: [],
             showFormStartGame: false,
             name: null,
+            show: true,
             turnInfo: null,
             showScoreBoard: false,
             endOfGame: false,
@@ -395,6 +414,8 @@
             decodedToken: null,
             chartData: null,
             cart: [],
+            scores: null,
+            startGuide: false,
             headers: [
                 {
                     text: 'Никнейм',
@@ -443,6 +464,9 @@
 //        this.prods = this.getPart(this.prodsStart, this.pageSize)
         },
         methods: {
+            closeGuide() {
+                this.startGuide = false
+            },
             refreshJwt(jwt) {
                 if (jwt) {
                     this.token = jwt
@@ -546,6 +570,7 @@
                     this.startGame(this.name).then(res => {
                         this.showFormStartGame = false
                     })
+                    this.startGuide = true
                 }
             },
             closeScoreBoard() {
@@ -623,7 +648,9 @@
                 this.cart.splice(this.cart.findIndex(el => el === item), 1)
             },
             addToCart(prod) {
-                this.cart.push(prod)
+                if (this.cart.length < 5) {
+                    this.cart.push(prod)
+                }
             },
             changeCategory(item) {
                 this.selectedCategory = item.id
@@ -688,10 +715,22 @@
                             bot3 += el.scores.Oleg_3
                             step++
                         })
+                        let scores = [player, bot1, bot2, bot3];
+                        let sorted = scores.slice().sort(function(a,b){return b-a})
+                        let ranks = scores.slice().map(function(v){ return sorted.indexOf(v)+1 });
+                        // console.log(ranks);
+                        let maxOfArray = Math.max.apply(Math, ranks);
+                        this.scores = {player: ranks[0], from: maxOfArray} 
                         console.log(obj)
                         this.chartData = obj
                         console.log()
                 })
+            },
+            tutorial (step) {
+                switch (step) {
+
+                }
+                
             }
         },
         watch: {
@@ -711,14 +750,8 @@
         },
         computed: {
             resOfGame() {
-                if (this.decodedToken) {
-                    if (this.decodedToken.score >= 0)
-                        return 3
-                    else if (this.decodedToken.score > 100)
-                        return 2
-                    else if (this.decodedToken.score > 1000)
-                        return 1
-                    else return 0
+                if (this.scores) {
+                    return this.scores.player
                 }
             },
         }
@@ -780,5 +813,12 @@
     }
     .congrats {
         font-size:24px;
+    }
+    .stats {
+        font-size:16px;
+        font-weight: normal;
+    }
+    .guide {
+
     }
 </style>
